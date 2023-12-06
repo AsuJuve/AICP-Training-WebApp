@@ -26,17 +26,23 @@ class Competitor(AbstractUser):
     )
 
     def __str__(self):
-        return self.email
+        return self.username
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
     color = models.CharField(max_length=6)
+
+    def __str__(self):
+        return self.name
 
 class Problem(models.Model):
     contest = models.IntegerField()
     index = models.CharField(max_length=1)
     difficulty = models.FloatField()
     number_solutions = models.IntegerField()
+
+    def __str__(self):
+        return str(self.contest) + str(self.index)
 
 class Recomendation(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
@@ -46,12 +52,20 @@ class Recomendation(models.Model):
     level_before = models.FloatField()
     level_after = models.FloatField()
 
+    def __str__(self):
+        return str(self.competitor) + " - " +str(self.problem)
+
 class Level(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     level = models.FloatField()
-    started = models.DateTimeField()
+
+    def __str__(self):
+        return str(self.competitor) + " - " + str(self.category)
 
 class ProblemCategory(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.problem) + " - " + str(self.category)

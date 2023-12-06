@@ -2,14 +2,17 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from .forms import SignupForm, LoginForm
-from .models import Competitor, Category
+from .models import Competitor, Category, Level
 from django.contrib.auth.decorators import login_required
 import requests
 
 @login_required
 def home(request):
     categories = Category.objects.all()
-    return render(request, "home.html", {'categories': categories})
+    levels = Level.objects.filter(competitor=request.user)
+    user_levels = {level.category_id: level.level for level in levels}
+    print(user_levels)
+    return render(request, "home.html", {'categories': categories, 'user_levels': user_levels})
 
 def signup(request):
     if request.method == 'POST':
@@ -36,10 +39,7 @@ def signup(request):
                     'error_message': 'Conexión fallida con la API de Codeforces. Intente de nuevo más tarde.'
                 })
 
-            # Create a new Competitor user (adjust if needed based on your model)
             user = Competitor.objects.create_user(email=email, username=username, password=password)
-
-            # Log in the user
             login(request, user)
 
             return redirect('training:home')

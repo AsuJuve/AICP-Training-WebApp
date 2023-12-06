@@ -1,13 +1,24 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% block title %}Home{% endblock %}
+{% block page_title %}Hola {{ request.user }}{% endblock %}
+{% block page_description %}Selecciona la categoría con la que te gustaría entrenar{% endblock %}
 {% block content %}
 <div class="categories" style="display: flex; flex-wrap: wrap; gap: 10px 10px;">
     {% for category in categories %}
+        
         <div class="card" style="background-color: #{{ category.color }}; flex-basis: 49%">
             <div class="card-body">
                 <h5 class="card-title">{{ category.name }}</h5>
-                <p class="card-text">Nivel actual: #</p>
-                <a href="·" class="btn btn-primary">Go to Category</a>
+                {% with user_level=user_levels|dict_lookup:category.id %}
+                    {% if user_level != None%}
+                        <p class="card-text">Nivel actual: {{ user_level }}</p>
+                        <a href="·" class="btn btn-primary">Continuar entrenamiento</a>
+                    {% else %}
+                        <p class="card-text">Entrenamiento no comenzado</p>
+                        <a href="#" class="btn btn-light">Comenzar entrenamiento</a>
+                    {% endif %}
+                {% endwith %}
             </div>
         </div>
     {% endfor %}
