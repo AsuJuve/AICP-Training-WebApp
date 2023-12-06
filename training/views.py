@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 from .forms import SignupForm, LoginForm
-from .models import Competitor
+from .models import Competitor, Category
 from django.contrib.auth.decorators import login_required
 import requests
 
 @login_required
 def home(request):
-    return render(request, "home.html")
+    categories = Category.objects.all()
+    return render(request, "home.html", {'categories': categories})
 
 def signup(request):
     if request.method == 'POST':

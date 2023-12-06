@@ -1,11 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    Hi <strong>{{ request.user.username }}</strong>! You are logged 
-</body>
-</html>
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="categories" style="display: flex; flex-wrap: wrap; gap: 10px 10px;">
+    {% for category in categories %}
+        <div class="card" style="background-color: #{{ category.color }}; flex-basis: 49%">
+            <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+                <p class="card-text">Nivel actual: #</p>
+                <a href="·" class="btn btn-primary">Go to Category</a>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

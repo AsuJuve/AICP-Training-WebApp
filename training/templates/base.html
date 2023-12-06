@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://kit.fontawesome.com/b6c7d329c5.js" crossorigin="anonymous"></script>
+        <title>{% block title %}{% endblock %}</title>
+        {% load static %}
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
+    <body style="background-color: #1f2026; color: #ffffff">
+        <div class="container-fluid" style="margin: auto;">
+            <div class="row" style="height: 50%;">
+                <div class="col-md-12" style="padding-right: 0px; padding-left: 0px;">
+                    <ul class="nav" style="background-color: #434552; justify-content: space-between">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'training:home' %}"><span class="fa-solid fa-house"></span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'training:logout' %}"><i class="fa-solid fa-right-from-bracket"></i></a>
+                        </li>
+                    </ul>
+                    <h3 style="padding-top: 12px; padding-right: 12px; padding-left: 12px;">
+                        Hola {{ request.user }}
+                    </h3>
+                    <p style="padding-right: 12px; padding-left: 12px;">
+                        Que rollo
+                    </p>
+                </div>
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+    </body>
+</html>
