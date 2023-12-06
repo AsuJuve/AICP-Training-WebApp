@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+from django.urls import reverse_lazy
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrap5',
     'training'
 ]
 
@@ -100,6 +102,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_URL = reverse_lazy('training:login')
+LOGIN_REDIRECT_URL = reverse_lazy('training:home')
+LOGOUT_REDIRECT_URL = reverse_lazy('training:login')
+AUTHENTICATION_BACKENDS = ['training.backends.EmailBackend']
 AUTH_USER_MODEL = 'training.Competitor'
 
 # Internationalization

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%; margin: 0;">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}{% endblock %}</title>
+        {% load static %}
+        {% load bootstrap5 %}
+        {% bootstrap_css %}
+        {% bootstrap_javascript %}
+    </head>
+    <body style="height: 100%; margin: 0; background-color: #1f2026; color: #babccc">
+        <div class="container-fluid" style="height: 100%; display: flex; align-items: center; justify-content: center;">
+            <div class="row justify-content-center">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-8">
+                    <div class="row">
+                        <div class="col-md-6" style="display: flex; align-items: center; justify-content: center;">
+                            <header>
+                                <h1>{% block page_title %}{% endblock %}</h1>
+                                <p style="width: 30vw; text-align: justify;">{% block page_description %}{% endblock %}</p>
+                                <main>
+                                    {% block content %}{% endblock %}
+                                </main>
+                            </header>
+                        </div>
+                        <div class="col-md-6" style="display: flex; align-items: center; justify-content: center;">
+                            <img src="{% static 'logo.png' %}" width=100% heigth=auto alt="Your Image">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

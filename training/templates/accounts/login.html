@@ -1,0 +1,18 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Inicio de Sesión - AICP Training{% endblock %}
+{% block page_title %}Inicio de Sesión{% endblock %}
+{% block page_description %}Ingresa con tu cuenta{% endblock %}
+
+{% block content %}
+  {% if error_message %}
+    <p class="error">{{ error_message }}</p>
+  {% endif %}
+  <form method="post" action="{% url 'training:login' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Iniciar sesión</button>
+  </form>
+  <br>
+  <p>¿Aún no tienes cuenta? <a href="{% url 'training:signup' %}">Registrate</a></p>
+{% endblock %}

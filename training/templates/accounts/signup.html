@@ -1,0 +1,22 @@
+{% extends 'accounts/base.html' %}
+
+{% block title %}Registro - AICP Training{% endblock %}
+{% block page_title %}Crea una cuenta{% endblock %}
+{% block page_description %}
+Para poder crear una cuenta en este sistema, es necesario que tengas una cuenta en 
+<a href="https://codeforces.com/register">Codeforces</a>.
+Una que vez tengas una cuenta en ese sitio, utiliza tu usuario de Codeforces para registrarte aquí.
+{% endblock %}
+
+{% block content %}
+  {% if error_message %}
+    <p class="error">{{ error_message }}</p>
+  {% endif %}
+  <form method="post" action="{% url 'training:signup' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Crear cuenta</button>
+  </form>
+  <br>
+  <p>¿Ya tienes una cuenta? <a href="{% url 'training:login' %}">Inicia sesión</a></p>
+{% endblock %}
