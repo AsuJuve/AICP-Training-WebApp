@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %} {{category.name}} {% endblock %}
+{% block page_title %} {{category.name}}{% endblock %}
+
+{% block page_description %}
+Progreso de entrenamiento en la cateogoría. 
+A continuación se muestra cada problema recomendado que has intentado
+y como a afectado a tu nivel en la categoría.
+{% endblock %}
+
+{% block content %}
+{{ chart|safe }}
+{% endblock %}

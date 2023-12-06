@@ -44,13 +44,17 @@ class Problem(models.Model):
     def __str__(self):
         return str(self.contest) + str(self.index)
 
-class Recomendation(models.Model):
+class Recommendation(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
     verdict = models.BooleanField()
-    started = models.DateTimeField()
-    level_before = models.FloatField()
-    level_after = models.FloatField()
+    created_at = models.DateTimeField()
+    result_date = models.DateTimeField(blank=True, null=True)
+    level_before = models.FloatField(blank=True, null=True)
+    level_after = models.FloatField(blank=True, null=True)
+
+    class Meta:
+        ordering = ('created_at',)
 
     def __str__(self):
         return str(self.competitor) + " - " +str(self.problem)

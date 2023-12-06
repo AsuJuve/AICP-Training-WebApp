@@ -4,7 +4,6 @@ from django.contrib.auth.backends import ModelBackend
 
 class EmailBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
-        print("SUP")
         UserModel = get_user_model()
         try:
             user = UserModel.objects.get(email=username)
@@ -12,6 +11,5 @@ class EmailBackend(ModelBackend):
             return None
         else:
             if user.check_password(password):
-                print(user)
                 return user
         return None

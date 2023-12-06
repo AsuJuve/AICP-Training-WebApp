@@ -13,10 +13,10 @@
                 {% with user_level=user_levels|dict_lookup:category.id %}
                     {% if user_level != None%}
                         <p class="card-text">Nivel actual: {{ user_level }}</p>
-                        <a href="·" class="btn btn-primary">Continuar entrenamiento</a>
+                        <a href="{% url 'training:category_detail' category.id %}" class="btn btn-primary">Continuar entrenamiento</a>
                     {% else %}
                         <p class="card-text">Entrenamiento no comenzado</p>
-                        <a href="#" class="btn btn-light">Comenzar entrenamiento</a>
+                        <a href="{% url 'training:category_detail' category.id %}" class="btn btn-light">Comenzar entrenamiento</a>
                     {% endif %}
                 {% endwith %}
             </div>
