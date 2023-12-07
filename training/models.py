@@ -40,6 +40,7 @@ class Problem(models.Model):
     index = models.CharField(max_length=1)
     difficulty = models.FloatField()
     number_solutions = models.IntegerField()
+    categories = models.ManyToManyField(Category, related_name='problems', blank=True)
 
     def __str__(self):
         return str(self.contest) + str(self.index)
@@ -47,7 +48,7 @@ class Problem(models.Model):
 class Recommendation(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    verdict = models.BooleanField()
+    verdict = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField()
     result_date = models.DateTimeField(blank=True, null=True)
     level_before = models.FloatField(blank=True, null=True)
@@ -63,13 +64,7 @@ class Level(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     level = models.FloatField()
+    created_at = models.DateTimeField()
 
     def __str__(self):
         return str(self.competitor) + " - " + str(self.category)
-
-class ProblemCategory(models.Model):
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.problem) + " - " + str(self.category)
