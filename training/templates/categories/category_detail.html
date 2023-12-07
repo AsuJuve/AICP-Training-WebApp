@@ -1,14 +1,139 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
+{% load static %}
 {% block title %} {{category.name}} {% endblock %}
 {% block page_title %} {{category.name}}{% endblock %}
 
 {% block page_description %}
-Progreso de entrenamiento en la cateogoría. 
-A continuación se muestra cada problema recomendado que has intentado
-y como a afectado a tu nivel en la categoría.
+<div style="padding-left: 12px;">
+    <p>
+        Progreso de entrenamiento en la cateogoría. 
+        A continuación se muestra cada problema recomendado que has intentado
+        y como a afectado a tu nivel en la categoría.
+    </p>
+    <!-- Recommendation Modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirm_recommendation_modal">
+        Solicitar problema para entrenar
+    </button>
+</div>
 {% endblock %}
 
 {% block content %}
+
+<!-- Notifications -->
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            <h4 class="alert-heading">Nuevo problema recomendado para practicar</h4>
+            <p>El siguiente problema en tu entrenamiento es: {{ message }}</p>
+            <hr>
+            <p class="mb-0">¡Recuerda que cuentas con 2 horas para intentar resolver el problema!</p>
+        </div>
+    {% endfor %}
+{% endif %}
+
+<br>
+
+<div class="modal fade" style="color: #000000" id="confirm_recommendation_modal" tabindex="-1" aria-labelledby="confirm_recommendation_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="confirm_recommendation_modal_label">Confirmación de solicitud de problema</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+            <h6>
+                ¿Estás seguro de solicitar un nuevo problema para entrenar en la categoría {{ category.name }}?
+            </h6>
+            <p>
+                Recuerda que una vez generada la recomendación de un problema tendrás solo <strong>2 horas</strong> para lograr resolverlo
+                , por lo que se te recomienda que solo solicites problemas cuando tengas el tiempo disponible para practicar.
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form method="post" action="{% url 'training:request_recommendation' category_id=category.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" id="recommendation-button">Confirmar</button>
+            </form>
+        </div>
+        </div>
+    </div>
+    <div class="spinner-container">
+        <div id="loading-spinner" class="spinner">
+            <img src="{% static 'spinner.gif' %}" alt="Cargando...">
+        </div>
+        <div id="loading-message" class="loading-message">Generando recomendación de problema en base a tu nivel actual</div>
+    </div>
+</div>
+
+<!-- Level progress chart -->
+<h3>Progreso de nivel</h3>
 {{ chart|safe }}
+
+<br>
+
+<!-- Recommendations table -->
+<div>
+    <h3>Recomendaciones</h3>
+    <table class="table table-bordered table-dark">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Problema</th>
+                <th scope="col">Fecha de resultado</th>
+                <th scope="col">Veredicto</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for recommendation in recommendations %}
+                <tr>
+                    <th scope="row">
+                        {{ recommendation.id }}
+                    </th>
+                    <td>
+                        {{ recommendation.problem.contest }}{{ recommendation.problem.index }}
+                    </td>
+                    <td>
+                        {% if recommendation.result_date %}
+                            {{ recommendation.result_date }}
+                        {% else %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if recommendation.result_date %}
+                            {% if recommendation.verdict %}
+                                <span class="badge bg-success">Problema resuelto</span>
+                            {% else %}
+                                <span class="badge bg-danger">Problema no resuelto</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="badge bg-warning">Pendiente</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if recommendations.has_previous %}
+                <a href="?page=1">&laquo; primera</a>
+                <a href="?page={{ recommendations.previous_page_number }}">anterior</a>
+            {% endif %}
+    
+            <span class="current">
+                Página {{ recommendations.number }} de {{ recommendations.paginator.num_pages }}.
+            </span>
+    
+            {% if recommendations.has_next %}
+                <a href="?page={{ recommendations.next_page_number }}">siguiente</a>
+                <a href="?page={{ recommendations.paginator.num_pages }}">última &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+
+</div>
 {% endblock %}

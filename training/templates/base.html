@@ -10,6 +10,36 @@
         {% load bootstrap5 %}
         {% bootstrap_css %}
         {% bootstrap_javascript %}
+        <style>
+            .spinner-container {
+                position: relative;
+                text-align: center;
+            }
+     
+            .spinner {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+     
+            .spinner img {
+                /* Adjust the styles for your spinner image */
+                width: 15vh;
+                height: 15vh;
+            }
+     
+            .loading-message {
+                display: none;
+                position: fixed;
+                top: 60%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                font-size: 2vh;
+                color: #000000;
+            }
+        </style>
     </head>
     <body style="background-color: #1f2026; color: #ffffff">
         <div class="container-fluid" style="margin: auto; padding-bottom: 12px;">
@@ -36,4 +66,10 @@
             </div>
         </div>
     </body>
+    <script>
+        document.getElementById('recommendation-button').addEventListener('click', function() {
+            document.getElementById('loading-spinner').style.display = 'block';
+            document.getElementById('loading-message').style.display = 'block';
+        });
+    </script>
 </html>
