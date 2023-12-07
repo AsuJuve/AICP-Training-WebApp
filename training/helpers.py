@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 from tensorflow.keras.models import load_model
 import os
 import pandas as pd
@@ -7,11 +8,11 @@ import plotly.graph_objects as go
 def get_chart_data(recommendations, category, user_level=None):
     fig = go.Figure()
 
-    if len(recommendations) > 0 or user_level:
+    if user_level:
         fig.add_trace(
             go.Scatter(
                 x=[user_level.created_at] + [r.created_at for r in recommendations],
-                y=[0.0] + [r.level_after for r in recommendations],
+                y=[800.0] + [r.level_after for r in recommendations],
                 line=dict(color="#"+category.color, width=4)
             )
         )
@@ -40,13 +41,13 @@ def get_chart_data(recommendations, category, user_level=None):
     return chart
 
 
-def generate_recommendation(user, user_level, problems):
+def generate_recommendation(user_level, problems, desired_indexes):
     model_path = os.path.join(settings.BASE_DIR, 'training/prediction/recommendation_model.keras')
     recommendation_model = load_model(model_path)
 
     # Create a DataFrame with the data for prediction
     data = {
-        'user_rating': [user_level.level] * len(problems),
+        'user_rating': [normalize(user_level, 800.0, 3500.0)] * len(problems),
         'problem_difficulty': [problem.difficulty for problem in problems],
         'problem_solved_count': [problem.number_solutions for problem in problems],
         'problem_category_greedy': [1 if "greedy" in problem.categories.all().values_list('name', flat=True) else 0 for problem in problems],
@@ -72,6 +73,43 @@ def generate_recommendation(user, user_level, problems):
     problem_predictions = list(zip(problems, predictions))
     problem_predictions = [(x, y) for x, y in problem_predictions if y >= lower_threshold and y <= upper_threshold]
     problem_predictions = sorted(problem_predictions, key = lambda p: p[1])
-    recommended_problem = problem_predictions[-1][0]
+
+    print(len(problem_predictions))
+    recommended_problems = []
+    for desired_index in desired_indexes:
+        if desired_index[0] <= 1:
+            index = desired_index[1]
+        else:
+            index = (len(problem_predictions) // desired_index[0]) + desired_index[1]
+        print(index)
+        recommended_problems.append(problem_predictions[index][0])
     
-    return recommended_problem
+    return recommended_problems
+
+
+def normalize(value, min_value, max_value):
+    normalized = (value - min_value) / (max_value - min_value)
+
+    # Keep values inside 0 and 1
+    return max(0.0, min(normalized, 1.0))
+
+
+def get_active_problem_recommendations(recommendations):
+    active_recommendations = []
+
+    for recommendation in recommendations:
+        if recommendation.is_for_diagnosis:
+            current_time = timezone.now()
+            five_hours_ago = current_time - timezone.timedelta(hours=5)
+
+            if recommendation.created_at > five_hours_ago:
+                active_recommendations.append(recommendation)
+
+        else:
+            current_time = timezone.now()
+            two_hours_ago = current_time - timezone.timedelta(hours=2)
+
+            if recommendation.created_at > two_hours_ago:
+                active_recommendations.append(recommendation)
+
+    return active_recommendations
