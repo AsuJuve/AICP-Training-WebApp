@@ -51,11 +51,12 @@ class Recommendation(models.Model):
     verdict = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField()
     result_date = models.DateTimeField(blank=True, null=True)
+    is_for_diagnosis = models.BooleanField()
     level_before = models.FloatField(blank=True, null=True)
     level_after = models.FloatField(blank=True, null=True)
 
     class Meta:
-        ordering = ('created_at',)
+        ordering = ('-created_at',)
 
     def __str__(self):
         return str(self.competitor) + " - " +str(self.problem)
@@ -63,7 +64,8 @@ class Recommendation(models.Model):
 class Level(models.Model):
     competitor = models.ForeignKey(Competitor, on_delete=models.CASCADE)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    level = models.FloatField()
+    mu = models.FloatField()
+    sigma = models.FloatField()
     created_at = models.DateTimeField()
 
     def __str__(self):
