@@ -70,6 +70,16 @@
         document.getElementById('recommendation-button').addEventListener('click', function() {
             document.getElementById('loading-spinner').style.display = 'block';
             document.getElementById('loading-message').style.display = 'block';
+            document.getElementById("confirm-recommendation-modal-btn-close").style.visibility = 'hidden';
+            document.getElementById("confirm-recommendation-modal-btn-cancel").style.visibility = 'hidden';
+            document.getElementById("recommendation-button").style.visibility = 'hidden';
+        });
+        document.getElementById('diagnosis-button').addEventListener('click', function() {
+            document.getElementById('loading-spinner-diagnosis').style.display = 'block';
+            document.getElementById('loading-message-diagnosis').style.display = 'block';
+            document.getElementById("diagnosis-modal-btn-close").style.visibility = 'hidden';
+            document.getElementById("diagnosis-modal-btn-cancel").style.visibility = 'hidden';
+            document.getElementById("diagnosis-button").style.visibility = 'hidden';
         });
     </script>
 </html>
