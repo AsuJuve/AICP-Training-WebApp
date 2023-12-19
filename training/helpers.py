@@ -54,7 +54,7 @@ def generate_recommendation(user_level, problems, desired_indexes):
     model_path = os.path.join(settings.BASE_DIR, 'training/prediction/recommendation_model.keras')
     recommendation_model = load_model(model_path)
 
-    # Create a DataFrame with the data for prediction
+    # DataFrame with the data for prediction
     data = {
         'user_rating': [normalize(user_level, 800.0, 3500.0)] * len(problems),
         'problem_difficulty': [problem.difficulty for problem in problems],
@@ -71,11 +71,9 @@ def generate_recommendation(user_level, problems, desired_indexes):
         'problem_category_bitmasks': [1 if "bitmasks" in problem.categories.all().values_list('name', flat=True) else 0 for problem in problems]
     }
     df = pd.DataFrame(data)
-
-    # Use your trained model to make predictions (replace this with your actual model)
-    
     predictions = recommendation_model.predict(df)
-
+    
+    # TODO - Add custom thresholds
     upper_threshold = .85
     lower_threshold = .65
 
@@ -83,7 +81,6 @@ def generate_recommendation(user_level, problems, desired_indexes):
     problem_predictions = [(x, y) for x, y in problem_predictions if y >= lower_threshold and y <= upper_threshold]
     problem_predictions = sorted(problem_predictions, key = lambda p: p[1])
 
-    print(len(problem_predictions))
     recommended_problems = []
     for desired_index in desired_indexes:
         if desired_index[0] <= 1:
