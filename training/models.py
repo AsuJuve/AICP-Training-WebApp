@@ -56,7 +56,7 @@ class Recommendation(models.Model):
     level_after = models.FloatField(blank=True, null=True)
 
     class Meta:
-        ordering = ('-created_at',)
+        ordering = ('result_date',)
 
     def __str__(self):
         return str(self.competitor) + " - " +str(self.problem)
