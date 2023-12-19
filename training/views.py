@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime, timedelta
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -9,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from .forms import SignupForm, LoginForm
-from .helpers import get_chart_data, generate_recommendation, get_active_problem_recommendations
+from .helpers import get_chart_data, generate_recommendation, update_problem_recommendations, update_user_level
 from .models import Competitor, Category, Level, Recommendation, Problem
 
 @login_required
@@ -25,7 +26,7 @@ def request_recommendation(request, category_id):
     # - Have not been recommended before
     problems = Problem.objects.filter(Q(pk__in=problems_with_category) & ~Q(pk__in=user_recommendations))
     
-    desired_index = -1
+    desired_index = (0, 0)
     recommended_problems = generate_recommendation(user_level.mu, problems, [desired_index])
 
     recommendation = Recommendation.objects.create(
@@ -52,7 +53,7 @@ def request_recommendation(request, category_id):
                 created_at=timezone.now()
             )
 
-        level.save()
+            level.save()
 
     return redirect('training:category_detail', category_id=category_id)
 
@@ -113,31 +114,75 @@ def request_diagnosis(request, category_id):
 
 @login_required
 def category_detail(request, category_id):
-    # --- DATA ---
+
+    # --- UPDATE RECOMMENDATIONS AND PROGRESS CHART---
     category = get_object_or_404(Category, pk=category_id)
     problem_with_category = category.problems.all()
     user_level_exists = Level.objects.filter(competitor=request.user, category=category).exists()
 
     # Get all Recommendations that belong to problem that belongs to the category
     category_recommendations = Recommendation.objects.filter(problem_id__in=problem_with_category)
-    active_recommendations_category = get_active_problem_recommendations(category_recommendations)
-    active_recommendations = get_active_problem_recommendations(Recommendation.objects.all())
-    
-    recommendations_chart = Recommendation.objects.filter(
-        (~Q(pk__in=[ar.pk for ar in active_recommendations_category]) & Q(pk__in=[ar.pk for ar in category_recommendations]))
-        | 
-        (Q(verdict=True) & Q(pk__in=[ar.pk for ar in category_recommendations]))
-    )
+    updated_category_recommendations = update_problem_recommendations(request.user, category_recommendations)
+    active_recommendations = update_problem_recommendations(request.user, Recommendation.objects.all())[0]
 
     user_level = None
     if user_level_exists:
         user_level = Level.objects.get(competitor=request.user, category=category)
+        # --- UPDATE USER LEVEL ---
+
+        solved_recommendations = updated_category_recommendations[1]
+        not_solved_recommendations = updated_category_recommendations[2]
+
+        for solved_recommendation in solved_recommendations:
+            new_user_level = update_user_level(
+                True,
+                user_level,
+                solved_recommendation.problem.difficulty
+            )
+
+            user_level.mu = new_user_level[0]
+            user_level.sigma = new_user_level[1]
+            user_level.save()
+
+            solved_recommendation.verdict = True
+            solved_recommendation.result_date = timezone.now()
+            solved_recommendation.level_after = user_level.mu
+            solved_recommendation.save()
+
+        for not_solved_recommendation in not_solved_recommendations:
+            new_user_level = update_user_level(
+                False,
+                user_level,
+                not_solved_recommendation.problem.difficulty
+            )
+
+            user_level.mu = new_user_level[0]
+            user_level.sigma = new_user_level[1]
+            user_level.save()
+
+            not_solved_recommendation.verdict = False
+            not_solved_recommendation.result_date = timezone.now()
+            not_solved_recommendation.level_after = user_level.mu
+            not_solved_recommendation.save()
+
+        recommendations_chart = Recommendation.objects.filter(
+            (~Q(pk__in=[ar.pk for ar in updated_category_recommendations[0]]) & Q(pk__in=[ar.pk for ar in category_recommendations]))
+            | 
+            (Q(verdict=True) & Q(pk__in=[ar.pk for ar in category_recommendations]))
+        )
+            
         chart = get_chart_data(recommendations_chart, category, user_level)
     else:
+
+        recommendations_chart = Recommendation.objects.filter(
+            (~Q(pk__in=[ar.pk for ar in updated_category_recommendations[0]]) & Q(pk__in=[ar.pk for ar in category_recommendations]))
+            | 
+            (Q(verdict=True) & Q(pk__in=[ar.pk for ar in category_recommendations]))
+        )
+
         chart = get_chart_data(recommendations_chart, category)
 
     # --- PAGINATION ---
-
     page = request.GET.get('page', 1)
     paginator = Paginator(category_recommendations, 10) 
 
@@ -148,13 +193,15 @@ def category_detail(request, category_id):
     except EmptyPage:
         paginated_recommendations = paginator.page(paginator.num_pages)
 
+    # --- RENDER ---
+
     return render(
         request,
         'categories/category_detail.html',
         {
             'category': category, 
             'chart': chart,
-            'active_recommendations_category': active_recommendations_category,
+            'active_recommendations_category': updated_category_recommendations[0],
             'active_recommendations': active_recommendations,
             'recommendations': paginated_recommendations,
             'user_level': user_level
