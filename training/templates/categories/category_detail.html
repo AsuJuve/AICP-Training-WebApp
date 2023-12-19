@@ -131,6 +131,8 @@
                 <tr>
                     <th scope="col">ID</th>
                     <th scope="col">Problema</th>
+                    <th scope="col">Dificultad</th>
+                    <th scope="col">Fecha recomendado</th>
                     <th scope="col">Fecha de resultado</th>
                     <th scope="col">Veredicto</th>
                 </tr>
@@ -145,6 +147,12 @@
                             <a href="https://codeforces.com/problemset/problem/{{ r.problem.contest }}/{{ r.problem.index }}" target="_blank">
                                 {{ r.problem.contest }}{{ r.problem.index }}
                             </a>
+                        </td>
+                        <td>
+                            {{ r.problem.difficulty|denormalize_difficulty }}
+                        </td>
+                        <td>
+                            {{ r.created_at }}
                         </td>
                         <td>
                             {% if r.result_date %}
