@@ -127,43 +127,45 @@ def category_detail(request, category_id):
 
     user_level = None
     if user_level_exists:
-        user_level = Level.objects.get(competitor=request.user, category=category)
         # --- UPDATE USER LEVEL ---
-
         solved_recommendations = updated_category_recommendations[1]
         not_solved_recommendations = updated_category_recommendations[2]
 
         for solved_recommendation in solved_recommendations:
-            new_user_level = update_user_level(
-                True,
-                user_level,
-                solved_recommendation.problem.difficulty
-            )
+            for aux_category in solved_recommendation.problem.categories.all():
+                user_category_level = Level.objects.get(competitor=request.user, category=aux_category)
+                new_user_level = update_user_level(
+                    True,
+                    user_category_level,
+                    solved_recommendation.problem.difficulty
+                )
 
-            user_level.mu = new_user_level[0]
-            user_level.sigma = new_user_level[1]
-            user_level.save()
+                user_category_level.mu = new_user_level[0]
+                user_category_level.sigma = new_user_level[1]
+                user_category_level.save()
 
-            solved_recommendation.verdict = True
-            solved_recommendation.result_date = timezone.now()
-            solved_recommendation.level_after = user_level.mu
-            solved_recommendation.save()
+                solved_recommendation.verdict = True
+                solved_recommendation.result_date = timezone.now()
+                solved_recommendation.level_after = user_category_level.mu
+                solved_recommendation.save()
 
         for not_solved_recommendation in not_solved_recommendations:
-            new_user_level = update_user_level(
-                False,
-                user_level,
-                not_solved_recommendation.problem.difficulty
-            )
+            for aux_category in not_solved_recommendation.problem.categories.all():
+                user_category_level = Level.objects.get(competitor=request.user, category=aux_category)
+                new_user_level = update_user_level(
+                    False,
+                    user_category_level,
+                    not_solved_recommendation.problem.difficulty
+                )
 
-            user_level.mu = new_user_level[0]
-            user_level.sigma = new_user_level[1]
-            user_level.save()
+                user_category_level.mu = new_user_level[0]
+                user_category_level.sigma = new_user_level[1]
+                user_category_level.save()
 
-            not_solved_recommendation.verdict = False
-            not_solved_recommendation.result_date = timezone.now()
-            not_solved_recommendation.level_after = user_level.mu
-            not_solved_recommendation.save()
+                not_solved_recommendation.verdict = False
+                not_solved_recommendation.result_date = timezone.now()
+                not_solved_recommendation.level_after = user_category_level.mu
+                not_solved_recommendation.save()
 
         recommendations_chart = Recommendation.objects.filter(
             (~Q(pk__in=[ar.pk for ar in updated_category_recommendations[0]]) & Q(pk__in=[ar.pk for ar in category_recommendations]))
@@ -171,6 +173,7 @@ def category_detail(request, category_id):
             (Q(verdict=True) & Q(pk__in=[ar.pk for ar in category_recommendations]))
         )
             
+        user_level = Level.objects.get(competitor=request.user, category=category)
         chart = get_chart_data(recommendations_chart, category, user_level)
     else:
 
@@ -193,7 +196,7 @@ def category_detail(request, category_id):
     except EmptyPage:
         paginated_recommendations = paginator.page(paginator.num_pages)
 
-        # --- COUNTDOWN ---
+    # --- COUNTDOWN ---
         
     target_date = None
 
