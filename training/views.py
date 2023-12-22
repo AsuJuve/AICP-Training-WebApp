@@ -215,6 +215,8 @@ def category_detail(request, category_id):
             'countdown_target_date': target_date,
             'active_recommendations_category': updated_category_recommendations[0],
             'active_recommendations': active_recommendations,
+            'solved_recommendations': solved_recommendations,
+            'not_solved_recommendations': not_solved_recommendations,
             'recommendations': paginated_recommendations,
             'user_level': user_level
         })
