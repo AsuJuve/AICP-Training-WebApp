@@ -193,6 +193,14 @@ def category_detail(request, category_id):
     except EmptyPage:
         paginated_recommendations = paginator.page(paginator.num_pages)
 
+        # --- COUNTDOWN ---
+        
+    target_date = None
+
+    if updated_category_recommendations[0]:
+        time_limit = 5 if updated_category_recommendations[0][0].is_for_diagnosis else 2
+        target_date = updated_category_recommendations[0][0].created_at + timedelta(hours=time_limit)
+
     # --- RENDER ---
 
     return render(
@@ -201,6 +209,7 @@ def category_detail(request, category_id):
         {
             'category': category, 
             'chart': chart,
+            'countdown_target_date': target_date,
             'active_recommendations_category': updated_category_recommendations[0],
             'active_recommendations': active_recommendations,
             'recommendations': paginated_recommendations,

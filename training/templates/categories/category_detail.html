@@ -9,6 +9,7 @@
         {% if active_recommendations_category %}
             <div class="alert alert-info" role="alert">
                 <h4 class="alert-heading">Problemas recomendados activos</h4>
+                <p>Tiempo restante: <strong id="countdown-timer"></strong></p>
                 <ul>
                     {% for arc in active_recommendations_category %}
                     <li>
@@ -196,4 +197,53 @@
         </div>
 
     </div>
+{% endblock %}
+{% block script %}
+    <script>
+        // Recommendation spinner
+        document.getElementById('recommendation-button').addEventListener('click', function() {
+            document.getElementById('loading-spinner').style.display = 'block';
+            document.getElementById('loading-message').style.display = 'block';
+            document.getElementById("confirm-recommendation-modal-btn-close").style.visibility = 'hidden';
+            document.getElementById("confirm-recommendation-modal-btn-cancel").style.visibility = 'hidden';
+            document.getElementById("recommendation-button").style.visibility = 'hidden';
+        });
+        document.getElementById('diagnosis-button').addEventListener('click', function() {
+            document.getElementById('loading-spinner-diagnosis').style.display = 'block';
+            document.getElementById('loading-message-diagnosis').style.display = 'block';
+            document.getElementById("diagnosis-modal-btn-close").style.visibility = 'hidden';
+            document.getElementById("diagnosis-modal-btn-cancel").style.visibility = 'hidden';
+            document.getElementById("diagnosis-button").style.visibility = 'hidden';
+        });
+
+        // Function to update the countdown timer
+        function updateCountdownTimer(targetDate) {
+            const now = new Date();
+            const timeDifference = targetDate - now;
+
+            if (timeDifference > 0) {
+                const hours = Math.floor((timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDifference % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown-timer').innerHTML = hours + 'h ' + minutes + 'm ' + seconds + 's';
+            } else {
+                // Reload the page when the countdown timer reaches zero
+                location.reload(true);
+            }
+        }
+
+        // Function to initialize the countdown timer
+        function initializeCountdownTimer(targetDate) {
+            updateCountdownTimer(targetDate);
+            setInterval(function () {
+                updateCountdownTimer(targetDate);
+            }, 1000);
+        }
+
+        {% if countdown_target_date %}
+            const targetDate = new Date('{{ countdown_target_date|date:"Y-m-dTH:i:s" }}'); 
+            initializeCountdownTimer(targetDate);
+        {% endif %}
+    </script>
 {% endblock %}
