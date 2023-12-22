@@ -1,10 +1,13 @@
 from django import forms
 from .models import Competitor
 from django.forms.widgets import PasswordInput, EmailInput
-from django.contrib.auth.forms import AuthenticationForm
-from django.core.validators import MinLengthValidator, MaxLengthValidator
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import authenticate
 import requests
+
+class CustomPasswordChangeForm(PasswordChangeForm):
+    pass
+
 
 class SignupForm(forms.ModelForm):
     repassword = forms.CharField(

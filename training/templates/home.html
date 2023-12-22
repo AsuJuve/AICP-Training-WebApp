@@ -4,9 +4,19 @@
 {% block page_title %}Hola {{ request.user }}{% endblock %}
 {% block page_description %}Selecciona la categoría con la que te gustaría entrenar{% endblock %}
 {% block content %}
+{% if messages %}
+    <ul class="messages">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    </ul>
+{% endif %}
 <div class="categories" style="display: flex; flex-wrap: wrap; gap: 10px 10px;">
     {% for category in categories %}
-        
         <div class="card" style="background-color: #{{ category.color }}; flex-basis: 49%">
             <div class="card-body">
                 <h5 class="card-title">{{ category.name }}</h5>

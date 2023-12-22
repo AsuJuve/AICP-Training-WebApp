@@ -1,15 +1,16 @@
 import requests
-from datetime import datetime, timedelta
+from datetime import timedelta
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.views import LoginView
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
-from django.utils.safestring import mark_safe
-from .forms import SignupForm, LoginForm
+from .forms import SignupForm, LoginForm, PasswordChangeForm
 from .helpers import get_chart_data, generate_recommendation, update_problem_recommendations, update_user_level
 from .models import Competitor, Category, Level, Recommendation, Problem
 
@@ -267,3 +268,19 @@ def signup(request):
 class LoginView(LoginView):
     form_class = LoginForm
     template_name = 'accounts/login.html'
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Update the user's session to reflect the changed password
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Tu contraseña fue actualizada con éxito!')
+            return redirect('training:home') 
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'accounts/change_password.html', {'form': form})

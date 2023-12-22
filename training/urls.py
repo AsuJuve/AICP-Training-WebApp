@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import signup, home, category_detail, request_recommendation, request_diagnosis, LoginView
+from .views import signup, home, category_detail, change_password, request_recommendation, request_diagnosis, LoginView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LogoutView
 
@@ -12,5 +12,6 @@ urlpatterns = [
     path('request_diagnosis/<int:category_id>/', request_diagnosis, name='request_diagnosis'),
     path('signup/', signup, name='signup'),
     path('login/', LoginView.as_view(), name='login'),
-    path('logout',login_required(LogoutView.as_view()),name='logout')
+    path('logout',login_required(LogoutView.as_view()),name='logout'),
+    path('change_password/', change_password, name='change_password')
 ]
