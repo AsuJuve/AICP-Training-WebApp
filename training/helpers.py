@@ -15,11 +15,11 @@ setup(backend='mpmath')
 def get_chart_data(recommendations, category, user_level=None):
     fig = go.Figure()
 
-    dates = [user_level.created_at] + [r.result_date for r in recommendations]
-    dates = [date.astimezone(timezone.get_current_timezone()) for date in dates]
-    levels = [800.0] + [r.level_after for r in recommendations]
-
     if user_level:
+        dates = [user_level.created_at] + [r.result_date for r in recommendations]
+        dates = [date.astimezone(timezone.get_current_timezone()) for date in dates]
+        levels = [800.0] + [r.level_after for r in recommendations]
+
         fig.add_trace(
             go.Scatter(
                 x=dates,
