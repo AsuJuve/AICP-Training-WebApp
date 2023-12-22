@@ -135,6 +135,7 @@
                     <th scope="col">Dificultad</th>
                     <th scope="col">Fecha recomendado</th>
                     <th scope="col">Fecha de resultado</th>
+                    <th scope="col">Nivel obtenido</th>
                     <th scope="col">Veredicto</th>
                 </tr>
             </thead>
@@ -158,6 +159,13 @@
                         <td>
                             {% if r.result_date %}
                                 {{ r.result_date }}
+                            {% else %}
+                                <span class="badge bg-warning">Pendiente</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.result_date %}
+                                {{ r.level_after|floatformat:2 }}
                             {% else %}
                                 <span class="badge bg-warning">Pendiente</span>
                             {% endif %}
