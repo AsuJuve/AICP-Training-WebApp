@@ -127,6 +127,9 @@ def category_detail(request, category_id):
     active_recommendations = update_problem_recommendations(request.user, Recommendation.objects.all())[0]
 
     user_level = None
+    solved_recommendations = None
+    not_solved_recommendations = None
+
     if user_level_exists:
         # --- UPDATE USER LEVEL ---
         solved_recommendations = updated_category_recommendations[1]
