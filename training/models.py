@@ -37,7 +37,7 @@ class Category(models.Model):
 
 class Problem(models.Model):
     contest = models.IntegerField()
-    index = models.CharField(max_length=1)
+    index = models.CharField(max_length=3)
     difficulty = models.FloatField()
     number_solutions = models.IntegerField()
     categories = models.ManyToManyField(Category, related_name='problems', blank=True)
